@@ -4,16 +4,16 @@ import IExercise from '../../interfaces/IExerciseSchema.js';
 const exerciseSchema = new mongoose.Schema<IExercise>({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Users',
+    ref: 'users',
     required: true,
   },
   skill: {
-    type: [String],
+    type: String,
     enum: ['grammar', 'vocabulary'],
     required: true,
   },
   type: {
-    type: [String],
+    type: String,
     enum: ['fillInGaps', 'multipleChoice'],
     required: true,
   },
@@ -28,8 +28,8 @@ const exerciseSchema = new mongoose.Schema<IExercise>({
   sentenceList: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Sentences',
-      required: true,
+      ref: 'sentences',
+      required: false,
     },
   ],
   title: {

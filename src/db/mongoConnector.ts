@@ -16,12 +16,9 @@ const db = mongoose.connection;
 db.on('error', () => {
   console.error('Failed to connect to DB');
 });
-db.once('open', () => {
-  console.log('Connected to DB');
-});
 
-const Users = mongoose.model('Users', userSchema);
-const Exercises = mongoose.model('Exercises', exerciseSchema);
-const Sentences = mongoose.model('Sentences', sentenceSchema);
+const Users = mongoose.model('users', userSchema);
+const Exercises = mongoose.model('exercises', exerciseSchema);
+const Sentences = mongoose.model('sentences', sentenceSchema);
 
 export { Users, Exercises, Sentences };

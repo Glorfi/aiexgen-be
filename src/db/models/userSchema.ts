@@ -19,13 +19,12 @@ const userSchema = new mongoose.Schema<IUser>({
   password: {
     type: String,
     required: true,
+    select: false,
   },
-  exercises: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Exercises',
-    },
-  ],
+  exercises: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'exercises',
+  },
 });
 
 export default userSchema;

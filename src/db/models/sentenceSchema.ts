@@ -14,7 +14,7 @@ const sentenceSchema = new mongoose.Schema<ISentence>({
   options: [{ type: String }],
   exercise: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Exercises',
+    ref: 'exercises',
   },
 });
 

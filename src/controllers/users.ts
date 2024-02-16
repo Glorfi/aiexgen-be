@@ -77,7 +77,10 @@ export const getCurrentUser = (
 ) => {
   const { _id } = req.user;
   Users.findById(_id)
-    .populate('exercises')
+    .populate({
+      path: 'exercises',
+      populate: { path: 'sentenceList', model: 'sentences' },
+    })
     .then((user) => {
       if (!user) {
         throw new NotFound('User is not found');

@@ -13,9 +13,11 @@ export const getUserExercises = (
   next: NextFunction
 ) => {
   const { _id } = req.user;
-  Exercises.find({ owner: _id }).then((exs: IExercise[]) => {
-    res.send(exs);
-  });
+  Exercises.find({ owner: _id })
+    .populate('sentenceList')
+    .then((exs: IExercise[]) => {
+      res.send(exs);
+    });
 };
 export const createExercise = (
   req: IRequest,

@@ -25,13 +25,12 @@ const exerciseSchema = new mongoose.Schema<IExercise>({
     type: Date,
     default: Date.now,
   },
-  sentenceList: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'sentences',
-      required: false,
-    },
-  ],
+  sentenceList: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'sentences',
+    required: false,
+  },
+
   title: {
     type: String,
     required: false,

@@ -19,6 +19,23 @@ export const getUserExercises = (
       res.send(exs);
     });
 };
+
+export const getExerciseByID = (
+  req: IRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  Exercises.findById(req.params.id)
+    .populate('sentenceList')
+    .then((ex: IExercise | null) => {
+      if (!ex) {
+        throw new NotFound('Exercise is not found');
+      }
+      res.send(ex);
+    })
+    .catch((err) => next(err));
+};
+
 export const createExercise = (
   req: IRequest,
   res: Response,
@@ -28,13 +45,15 @@ export const createExercise = (
   const { skill, type, sentenceList } = req.body;
   Exercises.create({ owner, skill, type })
     .then((ex: any) => {
-      Users.findById(owner).then((user: any | null) => {
-        if (!user) {
-          throw new NotFound("User's not found");
-        }
-        user.exercises?.push(ex._id);
-        return user.save();
-      });
+      Users.findById(owner)
+        .then((user: any | null) => {
+          if (!user) {
+            throw new NotFound("User's not found");
+          }
+          user.exercises?.push(ex._id);
+          return user.save();
+        })
+        .catch((err) => next(err));
       const sentencePromises = sentenceList.map((item: ISentence) => {
         const exId = ex._id;
         const { sentence, answer, hint, options } = item;
@@ -53,8 +72,7 @@ export const createExercise = (
         })
         .then(() =>
           ex.populate('sentenceList').then((newEx: any) => res.send(newEx))
-        )
-        .catch((err) => next(err));
+        );
     })
     .catch((err) => next(err));
 };
@@ -64,26 +82,33 @@ export const deleteExercise = (
   res: Response,
   next: NextFunction
 ) => {
-  let removedEx: IExercise;
+  let removedEx: IExercise | null;
+
   Exercises.findByIdAndDelete(req.params.id)
     .then((removedData: IExercise | null) => {
-      if (removedData) {
-        removedEx = removedData;
-      } else {
+      if (!removedData) {
         throw new NotFound('Exercise not found');
       }
+      removedEx = removedData;
+
+      return Sentences.find({ exercise: req.params.id });
+    })
+    .then((sentenceList: ISentence[]) => {
+      const sentenceIdList = sentenceList.map((sentence) => sentence._id);
+
+      return Sentences.deleteMany({ _id: { $in: sentenceIdList } });
     })
     .then(() => {
-      Sentences.find({ exercise: req.params.id }).then(
-        (sentenceList: ISentence[]) => {
-          const sentenceIdList = sentenceList.map((sentence) => {
-            return sentence._id;
-          });
-          Sentences.deleteMany({ _id: { $in: sentenceIdList } }).then(() => {
-            res.send(removedEx);
-          });
-        }
-      );
+      return Users.findByIdAndUpdate(req.user._id, {
+        $pull: { exercises: req.params.id },
+      });
+    })
+    .then((user) => {
+      if (!user) {
+        throw new NotFound('User not found');
+      }
+      res.send(removedEx);
+      return user.save();
     })
     .catch((err) => next(err));
 };

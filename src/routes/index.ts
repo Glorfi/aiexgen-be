@@ -8,4 +8,4 @@ export const router = express.Router();
 
 router.use('/auth', regRouter);
 router.use('/users', auth, usersRouter);
-router.use('/exercises', auth, exsRouter);
+router.use('/exercises', exsRouter);
